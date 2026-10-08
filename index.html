@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset=utf-8 />
+	<title>Map Template Browser Title</title>
+	<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <!-- Load additional CSS files here and this is an HTML comment -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+	<link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+
+	<style>
+        /* CSS rules go here and this is a CSS comment */
+		body {
+			margin: 0;
+			padding: 0;
+			background: "whitesmoke";
+			font-family: "Noto Sans", sans-serif;
+			color: #3d3d3d;
+		}
+
+		h1 {
+			position: absolute;
+			margin-top: 0;
+			top: 10px;
+			left: 45px;
+			font-size: 2em;
+			font-family: "Lora", serif;
+			letter-spacing: .04em;
+			padding: 10px 15px;
+			background: rgba(256, 256, 256);
+			border: 1px solid blue;
+			border-radius: 3px;
+			z-index: 800;
+		}
+
+		h2 {
+			font-family: "Lora", serif;
+			letter-spacing: .04em;
+		}
+
+		#map {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			width: 100%;
+		}
+
+		section {
+			position: absolute;
+			bottom: 0;
+			left: 10px;
+			width: 280px;
+			margin: 20px auto;
+			padding: 0 15px;
+			background: rgba(256, 256, 256);
+			border: 1px solid blue;
+			border-radius: 3px;
+			z-index: 800;
+		}
+
+		p {
+			font-size: .9em;
+			line-height: 1.5em;
+		}
+
+		a {
+			color: #005daa;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h1>Ciacova to Timișoara</h1>
+
+	<div id='map'></div>
+
+	<section>
+		<h2>Bus route</h2>
+
+		<p>I taught English as a Peace Corps Volunteer in the village of Ciacova, Romania. My classes consisted of middle school and high school students.</p>
+
+		<p>This is the route that I would take to the largest city near my site. The bus ran three times a day to Timișoara. I could walk to the train station or the city center from there. Romania is a gorgeous country and it can be easily travelled by bus or train.
+		</p>
+
+		<p>Wikipedia link: <a href="https://en.wikipedia.org/wiki/Ciacova">Ciacova</a></p>
+		<p>Wikipedia link: <a href="https://en.wikipedia.org/wiki/Timi%C8%99oara">Timișoara</a></p>
+		<p>Map authored by me, Chris Bennett</p>
+
+	</section>
+
+	<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+
+	<script src="data/route.js"></script>
+
+	<script>
+
+//options to be used when creating the map
+		var options = {
+			center:  [45.5138839, 21.1234007],
+			zoom: 12
+		}
+//output will be the GeoJSON object
+        console.log(data);
+
+//creation of the Leaflet map
+		var map = L.map('map', options);
+
+//request to load basemap
+var Esri_WorldStreetMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri'
+}).addTo(map);
+
+//string content to be inserted into a tooltip
+		var message = 'Bus route';
+
+//create a Leaflet marker, centered on the map's center.
+		L.marker(map.getCenter())
+			.bindTooltip(message) //bind the tooltip and message to the marker
+			.addTo(map) // add the marker to the map`
+			.openTooltip(); // open the tooltip
+
+		var myRoute = L.geoJson(data, { 
+          filter : function(feature) { 
+            if(feature.geometry.type =="LineString") { 
+              return feature; 
+            }
+	      }, 
+          style : function(feature) { 
+			
+            return { 
+              color: "royalblue", 
+              weight: 4, 
+              opacity: 0.8, 
+              dashArray: "8, 6" 
+            } 
+          } 
+          }).addTo(map);   
+
+        var myStops = L.geoJson(data, { 
+          filter : function(feature) { 
+            if(feature.geometry.type == "Point") { 
+              return feature; 
+            } 
+          }, 
+          onEachFeature : function(feature, layer) { 
+          layer.bindTooltip(feature.properties['name']);
+          } 
+          }).addTo(map);
+
+		map.fitBounds(myRoute.getBounds());
+
+
+	</script>
+
+</body>
+
+</html>
